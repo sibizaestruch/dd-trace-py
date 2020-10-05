@@ -197,6 +197,12 @@ setup(
                     extra_compile_args=extra_compile_args,
                 ),
                 Cython.Distutils.Extension(
+                    "ddtrace.profiling.recorder",
+                    sources=["ddtrace/profiling/recorder.pyx"],
+                    language="c",
+                    extra_compile_args=extra_compile_args,
+                ),
+                Cython.Distutils.Extension(
                     "ddtrace.profiling.collector._traceback",
                     sources=["ddtrace/profiling/collector/_traceback.pyx"],
                     language="c",

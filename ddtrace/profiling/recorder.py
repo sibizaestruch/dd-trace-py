@@ -3,33 +3,42 @@ import collections
 import os
 
 from ddtrace.profiling import _nogevent
+from ddtrace.profiling.collector import exceptions
+from ddtrace.profiling.collector import memalloc
+from ddtrace.profiling.collector import memory
+from ddtrace.profiling.collector import stack
+from ddtrace.profiling.collector import threading
 from ddtrace.vendor import attr
+from ddtrace.vendor import six
 
 
-class _defaultdictkey(dict):
-    """A variant of defaultdict that calls default_factory with the missing key as argument."""
+@attr.s
+class UnknownEvent(Exception):
+    event_type = attr.ib()
 
-    def __init__(self, default_factory=None):
-        self.default_factory = default_factory
 
-    def __missing__(self, key):
-        if self.default_factory:
-            v = self[key] = self.default_factory(key)
-            return v
-        raise KeyError(key)
+def _get_default_event_types():
+    return {
+        # Allow to store up to 10 threads for 60 seconds at 100 Hz
+        stack.StackSampleEvent: 10 * 60 * 100,
+        stack.StackExceptionSampleEvent: 10 * 60 * 100,
+        # This can generate one event every 0.1s if 100% are taken — though we take 5% by default.
+        # = (60 seconds / 0.1 seconds)
+        memory.MemorySampleEvent: int(60 / 0.1),
+        # (default buffer size / interval) * export interval
+        memalloc.MemoryAllocSampleEvent: int((64 / 0.5) * 60),
+        exceptions.UncaughtExceptionEvent: 128,
+        threading.LockAcquireEvent: 8192,
+        threading.LockReleaseEvent: 8192,
+    }
 
 
 @attr.s(slots=True, eq=False)
 class Recorder(object):
     """An object that records program activity."""
 
-    _DEFAULT_MAX_EVENTS = 32768
-
-    default_max_events = attr.ib(default=_DEFAULT_MAX_EVENTS)
-    """The maximum number of events for an event type if one is not specified."""
-
-    max_events = attr.ib(factory=dict)
-    """A dict of {event_type_class: max events} to limit the number of events to record."""
+    event_types = attr.ib(factory=_get_default_event_types, repr=False)
+    """A dict of {event_type_class: max events}."""
 
     events = attr.ib(init=False, repr=False)
     _events_lock = attr.ib(init=False, repr=False, factory=_nogevent.DoubleLock)
@@ -60,14 +69,17 @@ class Recorder(object):
         if events and os.getpid() == self._pid:
             event_type = events[0].__class__
             with self._events_lock:
-                q = self.events[event_type]
+                try:
+                    q = self.events[event_type]
+                except KeyError:
+                    raise UnknownEvent(event_type)
                 q.extend(events)
 
-    def _get_deque_for_event_type(self, event_type):
-        return collections.deque(maxlen=self.max_events.get(event_type, self.default_max_events))
-
     def _reset_events(self):
-        self.events = _defaultdictkey(self._get_deque_for_event_type)
+        self.events = {
+            event_class: collections.deque(maxlen=max_events)
+            for event_class, max_events in six.iteritems(self.event_types)
+        }
 
     def reset(self):
         """Reset the recorder.

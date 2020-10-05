@@ -12,7 +12,7 @@ class _FailExporter(exporter.Exporter):
 
 
 def test_exporter_failure():
-    r = recorder.Recorder()
+    r = recorder.Recorder({event.Event: 10})
     exp = _FailExporter()
     s = scheduler.Scheduler(r, [exp])
     r.push_events([event.Event()] * 10)

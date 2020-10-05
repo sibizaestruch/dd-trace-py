@@ -101,20 +101,7 @@ class Profiler(object):
         ]
 
     def __attrs_post_init__(self):
-        r = recorder.Recorder(
-            max_events={
-                # Allow to store up to 10 threads for 60 seconds at 100 Hz
-                stack.StackSampleEvent: 10 * 60 * 100,
-                stack.StackExceptionSampleEvent: 10 * 60 * 100,
-                # This can generate one event every 0.1s if 100% are taken — though we take 5% by default.
-                # = (60 seconds / 0.1 seconds)
-                memory.MemorySampleEvent: int(60 / 0.1),
-                # (default buffer size / interval) * export interval
-                memalloc.MemoryAllocSampleEvent: int((64 / 0.5) * 60),
-            },
-            default_max_events=int(os.environ.get("DD_PROFILING_MAX_EVENTS", recorder.Recorder._DEFAULT_MAX_EVENTS)),
-        )
-
+        r = recorder.Recorder()
         if formats.asbool(os.environ.get("DD_PROFILING_MEMALLOC", "false")):
             mem_collector = memalloc.MemoryCollector(r)
         else:

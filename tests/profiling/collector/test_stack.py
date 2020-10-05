@@ -113,7 +113,7 @@ def test_repr():
     test_collector._test_repr(
         stack.StackCollector,
         "StackCollector(status=<ServiceStatus.STOPPED: 'stopped'>, "
-        "recorder=Recorder(default_max_events=32768, max_events={}), min_interval_time=0.01, max_time_usage_pct=2.0, "
+        "recorder=Recorder(), min_interval_time=0.01, max_time_usage_pct=2.0, "
         "nframes=64, ignore_profiler=True, tracer=None)",
     )
 

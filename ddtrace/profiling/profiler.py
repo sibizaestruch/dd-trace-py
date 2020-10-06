@@ -102,7 +102,7 @@ class Profiler(object):
 
     def __attrs_post_init__(self):
         r = recorder.Recorder()
-        if formats.asbool(os.environ.get("DD_PROFILING_MEMALLOC", "false")):
+        if formats.asbool(os.environ.get("DD_PROFILING_MEMALLOC", "true")):
             mem_collector = memalloc.MemoryCollector(r)
         else:
             mem_collector = memory.MemoryCollector(r)

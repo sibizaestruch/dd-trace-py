@@ -115,7 +115,7 @@ class _WrappedResponseCallFuture(wrapt.ObjectProxy):
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def _next(self):
         try:
             return next(self.__wrapped__)
         except StopIteration:
@@ -134,6 +134,9 @@ class _WrappedResponseCallFuture(wrapt.ObjectProxy):
             self._span.set_traceback()
             self._span.finish()
             raise
+
+    def __next__(self):
+        return self._next()
 
     def next(self):
         return self.__next__()

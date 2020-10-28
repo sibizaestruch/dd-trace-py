@@ -36,6 +36,9 @@ RUN \
       python-openssl\
       wget \
       zlib1g-dev \
+      clang-format \
+      unixodbc-dev \
+      libsqliteodbc \
   # Cleaning up apt cache space
   && rm -rf /var/lib/apt/lists/*
 
@@ -60,6 +63,6 @@ RUN \
   && pyenv global 3.8.6 2.7.17 3.5.10 3.6.12 3.7.9 3.9.0 \
   && pip install --upgrade pip
 
-RUN pip install tox
+RUN pip install tox riot
 
 CMD ["/bin/bash"]

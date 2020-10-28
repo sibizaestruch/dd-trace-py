@@ -66,6 +66,7 @@ PATCH_MODULES = {
     # Auto-enable logging if the environment variable DD_LOGS_INJECTION is true
     "logging": config.logs_injection,
     "pynamodb": True,
+    "pyodbc": True,
 }
 
 _LOCK = threading.Lock()
@@ -85,6 +86,7 @@ _PATCH_ON_IMPORT = {
     "requests": ("requests",),
     "botocore": ("botocore",),
     "elasticsearch": ("elasticsearch",),
+    "pynamodb": ("pynamodb",),
 }
 
 

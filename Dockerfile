@@ -17,6 +17,7 @@ RUN \
       git \
       jq \
       libbz2-dev \
+      libenchant-dev \
       libffi-dev \
       liblzma-dev \
       libmariadb-dev \
@@ -29,15 +30,15 @@ RUN \
       libreadline-dev \
       libsasl2-dev \
       libsqlite3-dev \
-      # Needed to support Python 3.4
+      libssh-dev \
       libssl1.0-dev \
-      # Can be re-enabled once we drop 3.4
-      # libssh-dev \
-      # libssl-dev \
       patch \
       python-openssl\
       wget \
       zlib1g-dev \
+      clang-format \
+      unixodbc-dev \
+      libsqliteodbc \
   # Cleaning up apt cache space
   && rm -rf /var/lib/apt/lists/*
 
@@ -53,18 +54,15 @@ RUN git clone git://github.com/yyuu/pyenv.git "${PYENV_ROOT}"
 # Install all required python versions
 RUN \
   pyenv install 2.7.17 \
-  && pyenv install 3.4.9 \
-  && pyenv install 3.5.9 \
-  && pyenv install 3.6.9 \
-  && pyenv install 3.7.6 \
-  && pyenv install 3.8.1 \
-  && pyenv install 3.9-dev \
-  && pyenv global 2.7.17 3.4.9 3.5.9 3.6.9 3.7.6 3.8.1 3.9-dev \
+  && pyenv install 3.5.10 \
+  && pyenv install 3.6.12 \
+  && pyenv install 3.7.9 \
+  && pyenv install 3.8.6 \
+  && pyenv install 3.9.0 \
+  # Order matters: first version is the global one
+  && pyenv global 3.8.6 2.7.17 3.5.10 3.6.12 3.7.9 3.9.0 \
   && pip install --upgrade pip
 
-# Install Python dependencies
-# DEV: `tox==3.7` introduced parallel execution mode
-#      https://tox.readthedocs.io/en/3.7.0/example/basic.html#parallel-mode
-RUN pip install "tox>=3.7,<4.0"
+RUN pip install tox riot
 
 CMD ["/bin/bash"]

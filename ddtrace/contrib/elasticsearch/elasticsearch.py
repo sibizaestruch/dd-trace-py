@@ -8,6 +8,7 @@ module_names = (
     "elasticsearch6",
     "elasticsearch7",
 )
+
 for module_name in module_names:
     try:
         elasticsearch = import_module(module_name)

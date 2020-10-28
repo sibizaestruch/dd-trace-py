@@ -89,10 +89,12 @@ class TraceMiddleware(object):
                 status = _detect_and_set_status_error(err_type, span)
 
         span.set_tag(httpx.STATUS_CODE, status)
+        if 500 <= int(status) < 600:
+            span.error = 1
 
         # Emit span hook for this response
         # DEV: Emit before closing so they can overwrite `span.resource` if they want
-        config.falcon.hooks._emit('request', span, req, resp)
+        config.falcon.hooks.emit('request', span, req, resp)
 
         # Close the span
         span.finish()

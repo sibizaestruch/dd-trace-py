@@ -9,31 +9,11 @@ Tracer
 With ``ddtrace`` installed, the application can be instrumented.
 
 
-Auto Instrumentation
---------------------
-
-``ddtrace-run``
-^^^^^^^^^^^^^^^
-
-Python applications can easily be instrumented with ``ddtrace`` by using the
-included ``ddtrace-run`` command. Simply prefix your Python execution command
-with ``ddtrace-run`` in order to auto-instrument the libraries in your
-application.
-
-For example, if the command to run your application is::
-
-$ python app.py
-
-then to auto-instrument using Datadog, the corresponding command is::
-
-$ ddtrace-run python app.py
-
-For more advanced usage of ``ddtrace-run`` refer to the documentation :ref:`here<ddtracerun>`.
-
 ``patch_all``
 ^^^^^^^^^^^^^
 
-To manually invoke the automatic instrumentation use ``patch_all``::
+To manually invoke the automatic instrumentation use ``patch_all`` as early as
+possible in the application::
 
   from ddtrace import patch_all
   patch_all()
@@ -142,14 +122,6 @@ the `ddtrace.profiling.Profiler` object::
    profiler many times during your application lifecycle. Do not use them for
    e.g. building a context manager.
 
-Via command line
-----------------
-You can run your program with profiling enabled by using the wrapper
-`pyddprofile`. This will automatically enable the profiling of your
-application::
-
-  $ pyddprofile myscript.py
-
 
 Handling `os.fork`
 ------------------
@@ -158,11 +130,11 @@ When your process forks using `os.fork`, the profiler is stopped in the child
 process.
 
 For Python 3.7 and later on POSIX platforms, a new profiler will be started if
-you enabled the profiler via `pyddprofile` or `ddtrace.profiling.auto`.
+you enabled the profiler via `ddtrace-run` or `ddtrace.profiling.auto`.
 
 If you manually instrument the profiler, or if you rely on Python 3.6 or a
 non-POSIX platform and earlier version, you'll have to manually restart the
 profiler in your child.
 
-The global profiler instrumented by `pyddprofile` and `ddtrace.profiling.auto`
+The global profiler instrumented by `ddtrace-run` and `ddtrace.profiling.auto`
 can be started by calling `ddtrace.profiling.auto.start_profiler`.
